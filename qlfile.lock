@@ -1,0 +1,59 @@
+("quicklisp" .
+ (:class qlot/source/dist:source-dist
+  :initargs (:distribution "https://beta.quicklisp.org/dist/quicklisp.txt" :%version :latest)
+  :version "2023-10-21"))
+("micros" .
+ (:class qlot/source/git:source-git
+  :initargs (:remote-url "https://github.com/lem-project/micros.git")
+  :version "git-9fc7f1e5b0dbf1b9218a3f0aca7ed46e90aa86fd"))
+("lem-mailbox" .
+ (:class qlot/source/git:source-git
+  :initargs (:remote-url "https://github.com/lem-project/lem-mailbox.git")
+  :version "git-12d629541da440fadf771b0225a051ae65fa342a"))
+("lem-base16-themes" .
+ (:class qlot/source/git:source-git
+  :initargs (:remote-url "https://github.com/lem-project/lem-base16-themes.git")
+  :version "git-d7ece2372e94bca76bba7bfc5da3d05eaef31265"))
+("async-process" .
+ (:class qlot/source/git:source-git
+  :initargs (:remote-url "https://github.com/lem-project/async-process.git")
+  :version "git-9690530fc92b59636d9f17d821afa7697e7c8ca4"))
+("sblint" .
+ (:class qlot/source/git:source-git
+  :initargs (:remote-url "https://github.com/cxxxr/sblint.git")
+  :version "git-1037296f604c3210ce073a53539d4ae95b0c2f8c"))
+("rove" .
+ (:class qlot/source/git:source-git
+  :initargs (:remote-url "https://github.com/fukamachi/rove.git")
+  :version "git-cacea7331c10fe9d8398d104b2dfd579bf7ea353"))
+("cl-sdl2" .
+ (:class qlot/source/git:source-git
+  :initargs (:remote-url "https://github.com/lem-project/cl-sdl2.git")
+  :version "git-24dd7f238f99065b0ae35266b71cce7783e89fa7"))
+("cl-sdl2-ttf" .
+ (:class qlot/source/git:source-git
+  :initargs (:remote-url "https://github.com/lem-project/cl-sdl2-ttf.git")
+  :version "git-e61bb2119003d8ae7792d38aa11f7728d3ee5a00"))
+("cl-sdl2-image" .
+ (:class qlot/source/git:source-git
+  :initargs (:remote-url "https://github.com/lem-project/cl-sdl2-image.git")
+  :version "git-8734b0e24de9ca390c9f763d9d7cd501546d17d4"))
+("jsonrpc" .
+ (:class qlot/source/git:source-git
+  :initargs (:remote-url "https://github.com/cxxxr/jsonrpc.git")
+  :version "git-62e25f0e0059e57e6ab4abe677e466a76052c439"))
+("dissect" .
+ (:class qlot/source/git:source-git
+  :initargs (:remote-url "https://github.com/Shinmera/dissect.git")
+  :version "git-a70cabcd748cf7c041196efd711e2dcca2bbbb2c"))
+("3bmd" .
+ (:class qlot/source/git:source-git
+  :initargs (:remote-url "https://github.com/3b/3bmd.git")
+  :version "git-0a54e65e13f2eb174d47d3d2d21ae46ff29c547d"))
+("lem" .
+ (:class qlot/source/local:source-local
+  :initargs (:path "/home/cxxxr/projects/lem")))
+("cl-frugal-uuid" .
+ (:class qlot/source/git:source-git
+  :initargs (:remote-url "https://github.com/ak-coram/cl-frugal-uuid")
+  :version "git-f45d06925046bd97737992f0e9a5125b1a98e2ce"))
