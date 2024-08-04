@@ -1,7 +1,7 @@
 (defpackage :lem-server
   (:use :cl
         :alexandria)
-  (:local-nicknames (:peer :lem-server/peer))
+  (:local-nicknames (:replica :lem-server/replica))
   (:export :main))
 (in-package :lem-server)
 
@@ -25,38 +25,38 @@
         (user-id (gethash "userId" params)))
     (vom:info "http-port: ~A" http-port)
 
-    (when-let (peer (peer:find-peer-by-user-id user-id))
-      (vom:info "found peer: user-id = ~A" user-id)
-      (peer:add-peer-connection peer jsonrpc/connection:*connection*)
+    (when-let (replica (replica:find-replica-by-user-id user-id))
+      (vom:info "found replica: user-id = ~A" user-id)
+      (replica:add-replica-connection replica jsonrpc/connection:*connection*)
       (return-from rpc/login
-        (jsonrpc:call (peer:peer-client peer)
+        (jsonrpc:call (replica:replica-client replica)
                       "login"
                       params)))
 
-    (let ((peer (peer:run-peer :http-port http-port
+    (let ((replica (replica:run-replica :http-port http-port
                                :user-id user-id)))
-      (vom:info "created peer")
+      (vom:info "created replica")
 
       (sleep 1)
       ;; TODO: ここで前のsleepが足らずに接続に失敗するケースがある
-      (jsonrpc:client-connect (peer:peer-client peer)
+      (jsonrpc:client-connect (replica:replica-client replica)
                               :mode :local-domain-socket
-                              :address (peer:peer-address peer))
+                              :address (replica:replica-address replica))
       (vom:info "connected")
       (sleep 1)
 
-      (peer:add-peer-connection peer jsonrpc/connection:*connection*)
-      (peer:expose-peer-methods peer)
+      (replica:add-replica-connection replica jsonrpc/connection:*connection*)
+      (replica:expose-replica-methods replica)
 
-      (prog1 (jsonrpc:call (peer:peer-client peer)
+      (prog1 (jsonrpc:call (replica:replica-client replica)
                            "login"
                            params)
         (vom:info "connect succeeded")))))
 
 (defun notify-proxy (method params)
-  (let ((peer (peer:find-peer-by-connection jsonrpc/connection:*connection*)))
-    (assert peer)
-    (jsonrpc:notify (peer:peer-client peer) method params)))
+  (let ((replica (replica:find-replica-by-connection jsonrpc/connection:*connection*)))
+    (assert replica)
+    (jsonrpc:notify (replica:replica-client replica) method params)))
 
 (defun rpc/input (params)
   (notify-proxy "input" params))

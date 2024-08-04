@@ -1,7 +1,7 @@
 (defpackage :lem-server/http-server
   (:use :cl
         :alexandria)
-  (:local-nicknames (:peer :lem-server/peer))
+  (:local-nicknames (:replica :lem-server/replica))
   (:export :run))
 (in-package :lem-server/http-server)
 
@@ -29,7 +29,7 @@
   `(200 (:content-type "application/json")
         ,(babel:string-to-octets
           (com.inuoe.jzon:stringify
-           (coerce (peer:all-peers) 'vector)))))
+           (coerce (replica:all-replicas) 'vector)))))
 
 (defun get-idle-time (params)
   (declare (ignore params))
@@ -60,4 +60,4 @@
                  :port port
                  :address "0.0.0.0"))
 
-;; TODO: peerのconnectionはいらなくなりそう
+;; TODO: replicaのconnectionはいらなくなりそう
