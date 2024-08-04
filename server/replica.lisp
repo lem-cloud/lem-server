@@ -125,6 +125,24 @@
       "./lem-replica"
       "/work/lem-server/lem-replica"))
 
+(defstruct process
+  info
+  output-file
+  output-reader-stream)
+
+(defun launch-program (command)
+  (let ((output-file (uiop:with-temporary-file (:keep t :pathname pathname :prefix "lem-replica") pathname)))
+    (make-process :info (uiop:launch-program command
+                                             :output output-file
+                                             :error-output output-file)
+                  :output-file output-file)))
+
+(defun receive-output (process)
+  (unless (process-output-reader-stream process)
+    (setf (process-output-reader-stream process)
+          (open (process-output-file process))))
+  (read-line (process-output-reader-stream process) nil))
+
 (defun run-replica (&key http-port user-id)
   (let ((address (format nil "/tmp/jsonrpc-~A" user-id)))
     (uiop:delete-file-if-exists address)
@@ -133,12 +151,12 @@
                           "--address" address
                           "--http-port" (princ-to-string http-port)
                           "--co-editing-address" "/tmp/lem-co-editing-jsonrpc"))
-           (process (async-process:create-process command))
+           (process (launch-program command))
            (replica (make-instance 'replica
-                                :process process
-                                :http-port http-port
-                                :user-id user-id
-                                :address address)))
+                                   :process process
+                                   :http-port http-port
+                                   :user-id user-id
+                                   :address address)))
       (add-replica replica)
 
       (vom:info "run-replica command: ~S" command)
@@ -147,11 +165,11 @@
             (bt2:make-thread
              (lambda ()
                (loop
-                 (unless (async-process:process-alive-p process)
+                 (unless (uiop:process-alive-p (process-info process))
                    (vom:info "RIP: ~A" user-id)
                    (remove-replica replica)
                    (return))
-                 (let ((string (async-process:process-receive-output process)))
+                 (let ((string (receive-output process)))
                    (when string
                      (dolist (string (uiop:split-string string :separator '(#\newline)))
                        (vom:info "~A: ~A" user-id string))))))
@@ -171,7 +189,7 @@
                                  (vom:info "observer (user-id=~S): No connection count ~D" user-id n)
                                  n))
                      ;; プロセスを殺す
-                     (async-process:delete-process process)
+                     (uiop:terminate-process process)
                      (return)))))
              :name (format nil "replica observe thread (user-id=~S)" user-id)))
 

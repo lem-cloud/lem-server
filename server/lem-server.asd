@@ -1,6 +1,5 @@
 (defsystem "lem-server"
-  :depends-on ("async-process"
-               "ningle"
+  :depends-on ("ningle"
                "clack"
                "lem-co-editing/server"
                "jsonrpc/transport/websocket"
