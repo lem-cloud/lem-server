@@ -37,13 +37,19 @@
                                :user-id user-id)))
       (vom:info "created replica")
 
-      (sleep 1)
-      ;; TODO: ここで前のsleepが足らずに接続に失敗するケースがある
-      (jsonrpc:client-connect (replica:replica-client replica)
-                              :mode :local-domain-socket
-                              :address (replica:replica-address replica))
+      (loop :repeat 5
+            :do (sleep 1)
+                (handler-case
+                    (jsonrpc:client-connect (replica:replica-client replica)
+                                            :mode :local-domain-socket
+                                            :address (replica:replica-address replica))
+                  (error (e)
+                    (vom:info "try connection error: ~A" e))
+                  (:no-error (&rest values)
+                    (declare (ignore values))
+                    (return)))
+            :finally (error "Could not connect to replica"))
       (vom:info "connected")
-      (sleep 1)
 
       (replica:add-replica-connection replica jsonrpc/connection:*connection*)
       (replica:expose-replica-methods replica)
