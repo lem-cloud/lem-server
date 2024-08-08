@@ -205,25 +205,34 @@
 
 ;;;
 (defclass cursor ()
-  ((overlay :initarg :overlay :reader cursor-overlay)
+  ((overlay :initarg :overlay :accessor cursor-overlay)
+   (color :initarg :color :reader cursor-color)
    (client-id :initarg :client-id)))
 
 (defclass other-user-cursor-overlay (lem-core::cursor-overlay)
   ())
 
+(defun make-other-user-cursor-overlay (point color)
+  (make-instance 'other-user-cursor-overlay
+                 :start point
+                 :end point
+                 :buffer (lem:point-buffer point)
+                 :temporary nil
+                 :fake nil
+                 :attribute (lem:make-attribute :background color)))
+
 (defun make-cursor (point client-id client-color)
   (let ((point (lem:copy-point point :temporary)))
     (make-instance 'cursor
                    :client-id client-id
-                   :overlay (make-instance 'other-user-cursor-overlay
-                                           :start point
-                                           :end point
-                                           :buffer (lem:point-buffer point)
-                                           :temporary nil
-                                           :fake nil
-                                           :attribute (lem:make-attribute :background client-color)))))
+                   :color client-color
+                   :overlay (make-other-user-cursor-overlay point client-color))))
 
 (defmethod move ((cursor cursor) line character)
-  (let ((start (lem:overlay-start (cursor-overlay cursor)))
-        (end (lem:overlay-end (cursor-overlay cursor))))
-    (lem:move-point end (move-point start line character))))
+  (alexandria:when-let (overlay (cursor-overlay cursor))
+    (lem:delete-overlay overlay))
+  (let ((point (lem:copy-point (lem:buffer-point (lem:overlay-buffer (cursor-overlay cursor)))
+                               :temporary)))
+    (move-point point line character)
+    (let ((overlay (make-other-user-cursor-overlay point (cursor-color cursor))))
+      (setf (cursor-overlay cursor) overlay))))
